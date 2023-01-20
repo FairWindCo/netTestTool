@@ -156,7 +156,7 @@ class ComplexTest:
             return json.load(f)
 
     def run_all_tests(self, concurrent_mode=True, max_workers=None, max_execution_time=None):
-        start_test_time = time.monotonic_ns()
+        start_test_time = time.monotonic()
         if concurrent_mode or self.concurrent:
             result = self.run_concurred(max_worker=max_workers or self.max_workers,
                                         max_execution_time=max_execution_time or self.max_execution_time)
@@ -165,7 +165,7 @@ class ComplexTest:
         # if not complex.stop_server_after_test:
         #     complex.join_servers()
         return {
-            'all_test_time': (time.monotonic_ns() - start_test_time) / 10 ** 9,
+            'all_test_time': (time.monotonic() - start_test_time) / 10 ** 6,
             'all_test_count': len(result),
             'all_test_success': all(not _result['is_error'] for _result in result.values()),
             'datetime': datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
