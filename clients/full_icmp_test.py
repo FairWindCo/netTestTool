@@ -24,7 +24,7 @@ class FullICMPTest(ICMPTest):
     def test_procedure(self):
         host_name, aliases, ips = socket.gethostbyname_ex(self.host)
         result = {'ips': {}}
-        total = True
+        total = False
         for ip in ips:
             self.host = ip
             try:
@@ -41,7 +41,7 @@ class FullICMPTest(ICMPTest):
                     'avg': 0,
                     'loss': 100
                 }
-                total = False
+                total = True
 
         result['is_error'] = total
         return result

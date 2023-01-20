@@ -172,7 +172,7 @@ class ComplexTest:
         return {
             'all_test_time': (time.monotonic() - start_test_time),
             'all_test_count': len(result),
-            'all_test_success': not total_result,  # all(not _result['is_error'] for _result in result.values()),
+            'all_test_success': total_result,  # all(not _result['is_error'] for _result in result.values()),
             'datetime': datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
             'results': result,
             'timestamp': time.time(),
