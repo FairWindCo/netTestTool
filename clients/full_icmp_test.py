@@ -32,7 +32,7 @@ class FullICMPTest(ICMPTest):
                 res = super().test_procedure()
                 result['ips'][ip] = res
                 result['ips'][ip]['is_error'] = False
-                result['ips'][ip]['part_time'] = (time.monotonic() - start_test_time) / 10 ** 6
+                result['ips'][ip]['part_time'] = (time.monotonic() - start_test_time) / 10
             except Exception as e:
                 result['ips'][ip] = {
                     'is_error': True,

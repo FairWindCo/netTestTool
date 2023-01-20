@@ -21,7 +21,7 @@ class FullHTTPTest(HTTPTest):
         uri = urlparse(self.url)
         host_name, aliases, ips = socket.gethostbyname_ex(uri.hostname)
         result = {'ips': {}}
-        total = True
+        total = False
         for ip in ips:
             self.dns_rules[self.url] = ip
             try:
@@ -29,14 +29,14 @@ class FullHTTPTest(HTTPTest):
                 res = super().test_procedure()
                 result['ips'][ip] = res
                 result['ips'][ip]['is_error'] = False
-                result['ips'][ip]['part_time'] = (time.monotonic() - start_test_time) / 10 ** 6
+                result['ips'][ip]['part_time'] = (time.monotonic() - start_test_time)
             except Exception as e:
                 result['ips'][ip] = {
                     'is_error': True,
                     'error': self.check_error(e),
                     'part_time': 0,
                 }
-                total = False
+                total = True
 
         result['is_error'] = total
         return result

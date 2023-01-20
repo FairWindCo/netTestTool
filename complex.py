@@ -164,10 +164,15 @@ class ComplexTest:
             result = self.run()
         # if not complex.stop_server_after_test:
         #     complex.join_servers()
+        total_result = True
+        for _result in result.values():
+            if _result['is_error']:
+                total_result = False
+                break
         return {
-            'all_test_time': (time.monotonic() - start_test_time) / 10 ** 6,
+            'all_test_time': (time.monotonic() - start_test_time),
             'all_test_count': len(result),
-            'all_test_success': all(not _result['is_error'] for _result in result.values()),
+            'all_test_success': not total_result,  # all(not _result['is_error'] for _result in result.values()),
             'datetime': datetime.datetime.now().strftime("%d.%m.%Y %H:%M:%S"),
             'results': result,
             'timestamp': time.time(),
@@ -219,6 +224,7 @@ if __name__ == "__main__":
     current_error_count = 0
     while True:
         res = complex_test.run_all_tests()
+        print(res)
         if safe_report:
             safe_file(res, report_file)
         if not res['all_test_success']:

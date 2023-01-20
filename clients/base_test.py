@@ -94,7 +94,7 @@ class BaseTest:
             self.result['error'] = self.check_error(e)
             self.result['is_error'] = True
             self.result['exception'] = e
-        self.test_time = (time.monotonic() - start_test_time) / 10 ** 6
+        self.test_time = (time.monotonic() - start_test_time) / 10
         self.result['timing'] = self.test_time
         return self.result
 
