@@ -55,7 +55,8 @@ class BaseTCPIPTest(BaseTest):
                 try:
                     return dns_cache[args]
                 except KeyError:
-                    if (replaced_ip := dns_rules.get(args[0], None)) is not None:
+                    replaced_ip = dns_rules.get(args[0], None)
+                    if replaced_ip is not None:
                         # res = [(socket.AddressFamily.AF_INET, args[3], 0, '', (replaced_ip, args[1]))]
                         res = prv_getaddrinfo(replaced_ip, *args[1:])
                     else:
