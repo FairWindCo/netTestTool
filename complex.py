@@ -224,7 +224,7 @@ if __name__ == "__main__":
     current_error_count = 0
     while True:
         res = complex_test.run_all_tests()
-        print(res)
+        # print(res)
         if safe_report:
             safe_file(res, report_file)
         if not res['all_test_success']:
