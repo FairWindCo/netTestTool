@@ -1,2 +1,5 @@
 /config.json
 /examples/config.json
+output
+venv
+.idea
