@@ -147,7 +147,7 @@ class ComplexTest:
                     }
         finally:
             self.stop_all_servers()
-            executor.shutdown(wait=False, cancel_futures=True)
+            executor.shutdown(wait=False)
         return result
 
     @staticmethod
