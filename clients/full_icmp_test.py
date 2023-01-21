@@ -28,11 +28,11 @@ class FullICMPTest(ICMPTest):
         for ip in ips:
             self.host = ip
             try:
-                start_test_time = time.monotonic()
+                start_test_time = time.time()
                 res = super().test_procedure()
                 result['ips'][ip] = res
                 result['ips'][ip]['is_error'] = res['is_error']
-                result['ips'][ip]['part_time'] = (time.monotonic() - start_test_time) / 10
+                result['ips'][ip]['part_time'] = (time.time() - start_test_time)
                 total |= res['is_error']
             except Exception as e:
                 result['ips'][ip] = {

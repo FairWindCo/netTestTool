@@ -25,11 +25,11 @@ class FullHTTPTest(HTTPTest):
         for ip in ips:
             self.dns_rules[self.url] = ip
             try:
-                start_test_time = time.monotonic()
+                start_test_time = time.time()
                 res = super().test_procedure()
                 result['ips'][ip] = res
                 result['ips'][ip]['is_error'] = False
-                result['ips'][ip]['part_time'] = (time.monotonic() - start_test_time)
+                result['ips'][ip]['part_time'] = (time.time() - start_test_time)
             except Exception as e:
                 result['ips'][ip] = {
                     'is_error': True,

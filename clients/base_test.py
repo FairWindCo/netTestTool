@@ -85,7 +85,7 @@ class BaseTest:
 
     def execute_test_procedure(self):
         self.prepare_for_test()
-        start_test_time = time.monotonic()
+        start_test_time = time.time()
         try:
             self.result['is_error'] = False
             self.result.update(self.test_procedure())
@@ -94,7 +94,7 @@ class BaseTest:
             self.result['error'] = self.check_error(e)
             self.result['is_error'] = True
             self.result['exception'] = e
-        self.test_time = (time.monotonic() - start_test_time) / 10
+        self.test_time = (time.time() - start_test_time) / 10
         self.result['timing'] = self.test_time
         return self.result
 
