@@ -14,6 +14,7 @@ class SystemPing:
         self.result = None
         self.ping_command = 'ping'
         self.in_shell = False
+        self.split_symbol = '\r'
 
     def analise_std_out(self) -> dict:
         return {}
@@ -21,7 +22,7 @@ class SystemPing:
     def run(self):
         result = subprocess.run(self.ping_command, stdout=subprocess.PIPE, shell=self.in_shell)
         if result.returncode == 0 or result.returncode == 1:
-            self._std_out = list(map(str.strip, filter(lambda s: s.strip(), result.stdout.decode().split('\r'))))
+            self._std_out = list(map(str.strip, filter(lambda s: s.strip(), result.stdout.decode().split(self.split_symbol))))
             self.result = self.analise_std_out()
         self.result['is_error'] = result.returncode != 0
         return self.result
@@ -40,7 +41,7 @@ class SystemWinPing(SystemPing):
         index = 0
         result = {
             'peer': self.host,
-            'packet_lost': 0,
+            'lost': 0,
         }
         while index < length:
             match_peer = self.regexp_parent.match(self._std_out[index])
@@ -50,7 +51,7 @@ class SystemWinPing(SystemPing):
                 match_loss = self.regexp_lost.match(self._std_out[index])
                 if match_loss:
                     result['packet_lost'] = int(match_loss.group(3))
-                    result['lost'] = int(match_loss.group(4))
+                    result['lost'] = float(match_loss.group(4))
                     result['send'] = int(match_loss.group(1))
                     result['recv'] = int(match_loss.group(2))
                     index += 1
@@ -58,9 +59,9 @@ class SystemWinPing(SystemPing):
                         index += 1
                         match_timing = self.regexp_time.match(self._std_out[index])
                         if match_timing:
-                            result['minimum_time'] = int(match_timing.group(1))
-                            result['maximum_time'] = int(match_timing.group(2))
-                            result['avg_time'] = int(match_timing.group(3))
+                            result['minimum_time'] = float(match_timing.group(1))
+                            result['maximum_time'] = float(match_timing.group(2))
+                            result['avg_time'] = float(match_timing.group(3))
                             break
                     else:
                         break
@@ -78,6 +79,8 @@ class SystemLinuxPing(SystemPing):
         self.regexp_time = re.compile(
             r"^rtt min/avg/max/mdev = ([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*) ms")
         self.in_shell = True
+        self.split_symbol = '\n'
+
 
     def analise_std_out(self) -> dict:
         length = len(self._std_out)
@@ -93,19 +96,18 @@ class SystemLinuxPing(SystemPing):
                 index += 1
                 match_loss = self.regexp_lost.match(self._std_out[index])
                 if match_loss:
-                    result['lost'] = int(match_loss.group(3))
+                    result['lost'] = float(match_loss.group(3))
                     result['send'] = int(match_loss.group(1))
                     result['recv'] = int(match_loss.group(2))
                     result['timing'] = int(match_loss.group(4))
                     index += 1
                     if result['lost'] < 100:
-                        index += 1
                         match_timing = self.regexp_time.match(self._std_out[index])
                         if match_timing:
-                            result['minimum_time'] = int(match_timing.group(1))
-                            result['maximum_time'] = int(match_timing.group(3))
-                            result['avg_time'] = int(match_timing.group(2))
-                            result['mdev'] = int(match_timing.group(4))
+                            result['minimum_time'] = float(match_timing.group(1))
+                            result['maximum_time'] = float(match_timing.group(3))
+                            result['avg_time'] = float(match_timing.group(2))
+                            result['mdev'] = float(match_timing.group(4))
                             break
                     else:
                         break
@@ -117,7 +119,7 @@ def create_ping_service(host: str, count: int = 4, packet_size: int = 56, interv
     if sys.platform == 'win32':
         return SystemWinPing(host, count, packet_size, interval)
     else:
-        return SystemLinuxPing(host, count, packet_size, interval)
+        return SystemLinuxPing(host, count, packet_size, int(interval / 1000))
 
 
 if __name__ == "__main__":
