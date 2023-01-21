@@ -13,12 +13,13 @@ class SystemPing:
         self._std_out = None
         self.result = None
         self.ping_command = 'ping'
+        self.in_shell = False
 
     def analise_std_out(self) -> dict:
         return {}
 
     def run(self):
-        result = subprocess.run(self.ping_command, stdout=subprocess.PIPE)
+        result = subprocess.run(self.ping_command, stdout=subprocess.PIPE, shell=self.in_shell)
         if result.returncode == 0 or result.returncode == 1:
             self._std_out = list(map(str.strip, filter(lambda s: s.strip(), result.stdout.decode().split('\r'))))
             self.result = self.analise_std_out()
@@ -72,8 +73,11 @@ class SystemLinuxPing(SystemPing):
         super().__init__(host, count, packet_size, interval)
         self.ping_command = f'ping {host} -c {count} -i {interval} -s {packet_size}'
         self.regexp_parent = re.compile(r"^--- (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) ping statistics ---")
-        self.regexp_lost = re.compile(r"^(\d+) packets transmitted, (\d+) received, ([+-]?\d*\.?\d*)% packet loss, time (\d+)ms")
-        self.regexp_time = re.compile(r"^rtt min/avg/max/mdev = ([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*) ms")
+        self.regexp_lost = re.compile(
+            r"^(\d+) packets transmitted, (\d+) received, ([+-]?\d*\.?\d*)% packet loss, time (\d+)ms")
+        self.regexp_time = re.compile(
+            r"^rtt min/avg/max/mdev = ([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*)/([+-]?\d*\.?\d*) ms")
+        self.in_shell = True
 
     def analise_std_out(self) -> dict:
         length = len(self._std_out)
