@@ -69,7 +69,7 @@ class SystemWinPing(SystemPing):
 
 
 class SystemLinuxPing(SystemPing):
-    def __init__(self, host: str, count: int = 4, packet_size: int = 56, interval: int = 1000) -> None:
+    def __init__(self, host: str, count: int = 4, packet_size: int = 56, interval: int = 1) -> None:
         super().__init__(host, count, packet_size, interval)
         self.ping_command = f'ping {host} -c {count} -i {interval} -s {packet_size}'
         self.regexp_parent = re.compile(r"^--- (\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}) ping statistics ---")
