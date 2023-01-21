@@ -18,7 +18,7 @@ class SystemPing:
         return {}
 
     def run(self):
-        result = subprocess.run(self.ping_command, capture_output=True)
+        result = subprocess.run(self.ping_command, stdout=subprocess.PIPE)
         if result.returncode == 0 or result.returncode == 1:
             self._std_out = list(map(str.strip, filter(lambda s: s.strip(), result.stdout.decode().split('\r'))))
             self.result = self.analise_std_out()
