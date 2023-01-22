@@ -7,9 +7,14 @@ from clients.http_test import HTTPTest
 
 class FullHTTPTest(HTTPTest):
 
+    def __init__(self, config_dict):
+        super().__init__(config_dict)
+        self.need_count = config_dict.get('need_count', None)
+
     def get_brief_result(self):
         res = super().get_brief_result()
         res['detail_info'] = {}
+        res['count'] = self.result['count']
         for key, result in self.result['ips'].items():
             res['detail_info'][key] = {
                 'is_error': result['is_error'],
@@ -20,7 +25,8 @@ class FullHTTPTest(HTTPTest):
     def test_procedure(self):
         uri = urlparse(self.url)
         host_name, aliases, ips = socket.gethostbyname_ex(uri.hostname)
-        result = {'ips': {}}
+        test_count = len(ips)
+        result = {'ips': {}, 'count': test_count}
         total = False
         for ip in ips:
             self.dns_rules[self.url] = ip
@@ -39,4 +45,7 @@ class FullHTTPTest(HTTPTest):
                 total = True
 
         result['is_error'] = total
+        if self.need_count is not None:
+            result['is_error'] = self.need_count < test_count
+            result['error'] = f'need {self.need_count} test, but have {test_count}'
         return result

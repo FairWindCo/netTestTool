@@ -18,6 +18,14 @@ from servers.threaded_udp_server import ThreadedUdpSocketServer
 from telegram import send_message_to_all
 
 
+def set_bit(value, bit):
+    return value | (1 << bit)
+
+
+def clear_bit(value, bit):
+    return value & ~(1 << bit)
+
+
 class ComplexTest:
 
     def __init__(self, config_dict: dict) -> None:
@@ -194,6 +202,14 @@ class ComplexTest:
                                            _config.get('max_execution_time', None))
 
     @staticmethod
+    def form_error_mark(result):
+        error_mark = 0
+        for index, detail in enumerate(result['results'].values()):
+            if detail['is_error']:
+                set_bit(error_mark, index)
+        return error_mark
+
+    @staticmethod
     def form_error_message(_config, last_result):
         message_error_template = _config.get('message_error_template', 'Ошибка в тесте {} не доступен {}')
         messages_errors = ['Проблемы доступа {}'.format(last_result['datetime']), ]
@@ -222,12 +238,16 @@ if __name__ == "__main__":
     report_file = config.get('report_file', 'report.json')
     safe_report = config.get('safe_report', True)
     current_error_count = 0
+    last_error_mark = 0
     while True:
         res = complex_test.run_all_tests()
         # print(res)
         if safe_report:
             safe_file(res, report_file)
         if not res['all_test_success']:
+            error_mark = ComplexTest.form_error_mark(res)
+            if error_mark != last_error_mark:
+                current_error_count = 0
             current_error_count += 1
             if current_error_count == max_errors:
                 mes = ComplexTest.form_error_message(config, res)

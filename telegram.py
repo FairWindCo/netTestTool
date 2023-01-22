@@ -54,16 +54,20 @@ def send_message_users(config, message):
         print(response)
 
 
-def send_message_to_all(config, message):
+def send_message_to_all(config, message, debug=False):
     try:
         bot_token = config['token']
+        recipients = config.get('recipient_ids', ())
         url = f"https://api.telegram.org/bot{bot_token}/getUpdates"
         response = requests.get(url).json()
-        chats = set()
+        chats = set(recipients)
         if response and response['ok']:
-            for update in response['result']:
-                chat_id = update['message']['chat']['id']
-                chats.add(chat_id)
+            if debug:
+                print(response)
+            if chats:
+                for update in response['result']:
+                    chat_id = update['message']['chat']['id']
+                    chats.add(chat_id)
             for chat_id in chats:
                 url = f"https://api.telegram.org/bot{bot_token}/sendMessage?chat_id={chat_id}&text={message}"
                 requests.get(url).json()
@@ -77,4 +81,4 @@ if __name__ == "__main__":
     config = {
         'token': '',
     }
-    send_message_to_all(config, "test\ntest")
+    send_message_to_all(config, "test\ntest", True)
