@@ -54,7 +54,7 @@ class FullICMPTest(ICMPTest):
                 total = True
 
         result['is_error'] = total
-        if self.need_count is not None:
+        if self.need_count is not None and self.need_count > test_count:
             result['is_error'] = self.need_count < test_count
             result['error'] = f'need {self.need_count} ip, but have {test_count}'
         return result
