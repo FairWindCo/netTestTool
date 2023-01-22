@@ -42,26 +42,27 @@ class SystemWinPing(SystemPing):
         result = {
             'peer': self.host,
             'lost': 0,
+            'avg_rtt': 0,
         }
         while index < length:
             match_peer = self.regexp_parent.match(self._std_out[index])
             if match_peer:
-                result['peer'] = match_peer.group(1)
+                result['parent'] = match_peer.group(1)
                 index += 1
                 match_loss = self.regexp_lost.match(self._std_out[index])
                 if match_loss:
                     result['packet_lost'] = int(match_loss.group(3))
-                    result['lost'] = float(match_loss.group(4))
+                    result['loss'] = float(match_loss.group(4))
                     result['send'] = int(match_loss.group(1))
                     result['recv'] = int(match_loss.group(2))
                     index += 1
-                    if result['lost'] < 100:
+                    if result['loss'] < 100:
                         index += 1
                         match_timing = self.regexp_time.match(self._std_out[index])
                         if match_timing:
-                            result['minimum_time'] = float(match_timing.group(1))
-                            result['maximum_time'] = float(match_timing.group(2))
-                            result['avg_time'] = float(match_timing.group(3))
+                            result['min_rtt'] = float(match_timing.group(1))
+                            result['max_rtt'] = float(match_timing.group(2))
+                            result['avg_rtt'] = float(match_timing.group(3))
                             break
                     else:
                         break
@@ -92,21 +93,21 @@ class SystemLinuxPing(SystemPing):
         while index < length:
             match_peer = self.regexp_parent.match(self._std_out[index])
             if match_peer:
-                result['peer'] = match_peer.group(1)
+                result['parent'] = match_peer.group(1)
                 index += 1
                 match_loss = self.regexp_lost.match(self._std_out[index])
                 if match_loss:
-                    result['lost'] = float(match_loss.group(3))
+                    result['loss'] = float(match_loss.group(3))
                     result['send'] = int(match_loss.group(1))
                     result['recv'] = int(match_loss.group(2))
                     result['timing'] = int(match_loss.group(4))
                     index += 1
-                    if result['lost'] < 100:
+                    if result['loss'] < 100:
                         match_timing = self.regexp_time.match(self._std_out[index])
                         if match_timing:
-                            result['minimum_time'] = float(match_timing.group(1))
-                            result['maximum_time'] = float(match_timing.group(3))
-                            result['avg_time'] = float(match_timing.group(2))
+                            result['min_rtt'] = float(match_timing.group(1))
+                            result['max_rtt'] = float(match_timing.group(3))
+                            result['avg_rtt'] = float(match_timing.group(2))
                             result['mdev'] = float(match_timing.group(4))
                             break
                     else:
