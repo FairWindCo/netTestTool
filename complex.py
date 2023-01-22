@@ -211,19 +211,54 @@ class ComplexTest:
 
     @staticmethod
     def form_error_message(_config, last_result):
-        message_error_template = _config.get('message_error_template', 'Ошибка в тесте {} не доступен {}')
+        message_error_template = _config.get('message_error_template', 'Ошибка в тесте {} не доступен {}{message}')
         messages_errors = ['Проблемы доступа {}'.format(last_result['datetime']), ]
         for name, detail in last_result['results'].items():
             if detail['is_error']:
                 detail_info = detail.get('detail_info', {})
+                message = detail_info.get('error', detail.get('error', ''))
                 for ip, info in detail_info.items():
+                    message_det = info.get('error', '')
                     if info['is_error']:
-                        messages_errors.append(message_error_template.format(name, ip, **info))
+                        messages_errors.append(message_error_template.format(name, ip, message=message_det, **info))
                 detail_info = detail.get('detail', {})
                 if detail_info:
                     messages_errors.append(
-                        message_error_template.format(name, detail_info['ip'], **detail_info))
+                        message_error_template.format(name, detail_info['ip'], message=message, **detail_info))
+                elif message:
+                    messages_errors.append(message_error_template.format(name, '', message=message, **detail_info))
         return '\n'.join(messages_errors)
+
+    @staticmethod
+    def control_network_process(config_file='config.json', with_servers=False, debug=0):
+        complex_test, config = ComplexTest.create_complex_test(config_file, with_servers=with_servers)
+        interval = config.get('all_test_interval', 60)
+        max_errors = config.get('max_errors_count', 3)
+        report_file = config.get('report_file', 'report.json')
+        safe_report = config.get('safe_report', True)
+        current_error_count = 0
+        last_error_mark = 0
+        while True:
+            res = complex_test.run_all_tests()
+            if debug == 2:
+                print(res)
+            if safe_report:
+                safe_file(res, report_file)
+            if not res['all_test_success']:
+                error_mark = ComplexTest.form_error_mark(res)
+                if error_mark != last_error_mark:
+                    current_error_count = 0
+                current_error_count += 1
+                if current_error_count == max_errors:
+                    mes = ComplexTest.form_error_message(config, res)
+                    if debug >= 1:
+                        print(mes)
+                    send_message_to_all(config, mes)
+            else:
+                if current_error_count > 0:
+                    pass
+                current_error_count = 0
+            time.sleep(interval)
 
 
 def safe_file(res, file_name='report.json'):
@@ -232,44 +267,18 @@ def safe_file(res, file_name='report.json'):
 
 
 if __name__ == "__main__":
-    complex_test, config = ComplexTest.create_complex_test()
-    interval = config.get('all_test_interval', 60)
-    max_errors = config.get('max_errors_count', 3)
-    report_file = config.get('report_file', 'report.json')
-    safe_report = config.get('safe_report', True)
-    current_error_count = 0
-    last_error_mark = 0
-    while True:
-        res = complex_test.run_all_tests()
-        # print(res)
-        if safe_report:
-            safe_file(res, report_file)
-        if not res['all_test_success']:
-            error_mark = ComplexTest.form_error_mark(res)
-            if error_mark != last_error_mark:
-                current_error_count = 0
-            current_error_count += 1
-            if current_error_count == max_errors:
-                mes = ComplexTest.form_error_message(config, res)
-                print(mes)
-                send_message_to_all(config, mes)
-        else:
-            if current_error_count > 0:
-                pass
-            current_error_count = 0
-        time.sleep(interval)
-
-        # config = ComplexTest.load_config("config.json")
-    # complex = ComplexTest(config)
-    #
-    # # start = datetime.datetime.now()
-    # # print(complex.run())
-    # # print(datetime.datetime.now() - start)
-    # #
-    # # start = datetime.datetime.now()
-    # # print(complex.run_concurred(max_worker=15, max_execution_time=5))
-    # # print(datetime.datetime.now() - start)
-    #
-    # # start = datetime.datetime.now()
-    # # print(complex.run_concurred(max_execution_time=5))
-    # # print(datetime.datetime.now() - start)
+    ComplexTest.control_network_process(debug=1)
+# config = ComplexTest.load_config("config.json")
+# complex = ComplexTest(config)
+#
+# # start = datetime.datetime.now()
+# # print(complex.run())
+# # print(datetime.datetime.now() - start)
+# #
+# # start = datetime.datetime.now()
+# # print(complex.run_concurred(max_worker=15, max_execution_time=5))
+# # print(datetime.datetime.now() - start)
+#
+# # start = datetime.datetime.now()
+# # print(complex.run_concurred(max_execution_time=5))
+# # print(datetime.datetime.now() - start)

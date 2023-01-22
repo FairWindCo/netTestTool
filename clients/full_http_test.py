@@ -15,6 +15,8 @@ class FullHTTPTest(HTTPTest):
         res = super().get_brief_result()
         res['detail_info'] = {}
         res['count'] = self.result['count']
+        if self.result['error']:
+            res['error'] = self.result['error']
         for key, result in self.result['ips'].items():
             res['detail_info'][key] = {
                 'is_error': result['is_error'],
@@ -46,6 +48,6 @@ class FullHTTPTest(HTTPTest):
 
         result['is_error'] = total
         if self.need_count is not None:
-            result['is_error'] = self.need_count < test_count
-            result['error'] = f'need {self.need_count} test, but have {test_count}'
+            result['is_error'] = self.need_count > test_count
+            result['error'] = f'need {self.need_count} ip, but have {test_count}'
         return result
