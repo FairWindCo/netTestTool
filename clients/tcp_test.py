@@ -11,12 +11,8 @@ class TCPTest(BaseTCPIPTest):
             'timeout': 5,
         }
 
-    def init_result(self, **additional_fields):
-        return super().init_result(host=self.host,
-                                   port=self.port,
-                                   **additional_fields)
 
-    def test_procedure(self):
+    def _test_procedure(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket = sock
         sock.settimeout(self.timeout)
@@ -28,5 +24,6 @@ class TCPTest(BaseTCPIPTest):
         sock.settimeout(self.timeout)
         self.result['peer'] = host_ip, self.port
         sock.connect((host_ip, self.port))
+        result = self._on_connect(socket=sock)
         sock.close()
-        return {}
+        return result

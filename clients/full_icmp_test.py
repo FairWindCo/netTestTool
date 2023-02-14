@@ -29,7 +29,7 @@ class FullICMPTest(ICMPTest):
             }
         return res
 
-    def test_procedure(self):
+    def _test_procedure(self):
         host_name, aliases, ips = socket.gethostbyname_ex(self.host)
         test_count = len(ips)
         result = {'ips': {}, 'count': test_count}
@@ -38,7 +38,7 @@ class FullICMPTest(ICMPTest):
             self.host = ip
             try:
                 start_test_time = time.time()
-                res = super().test_procedure()
+                res = super()._test_procedure()
                 result['ips'][ip] = res
                 result['ips'][ip]['is_error'] = res['is_error']
                 result['ips'][ip]['part_time'] = (time.time() - start_test_time)

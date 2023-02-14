@@ -19,7 +19,7 @@ class ICMPTest(BaseTCPIPTest):
         })
         return conf
 
-    def test_procedure(self):
+    def _test_procedure(self):
         if self.os_ping:
             os_pinger = create_ping_service(self.host, self.count, self.packet_size, self.timeout)
             return os_pinger.run()
@@ -38,8 +38,8 @@ class ICMPTest(BaseTCPIPTest):
     def get_brief_result(self):
         res = super().get_brief_result()
         res['detail'] = {
-            'avg': self.result['avg_rtt'],
-            'loss': self.result['loss'],
-            'ip': self.result['parent']
+            'avg': self.result.get('avg_rtt', 0),
+            'loss': self.result.get('loss', 100),
+            'ip': self.result.get('parent', self.host),
         }
         return res

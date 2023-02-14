@@ -1,4 +1,5 @@
 import socket
+from typing import Optional, Union
 
 from clients.ip_base_test import BaseTCPIPTest
 
@@ -20,17 +21,34 @@ class UdpTest(BaseTCPIPTest):
                                    port=self.port,
                                    **additional_fields)
 
-    def create_message(self):
+    def _create_message(self):
         if not self.message:
             return '0'.encode()
         else:
             return self.message.encode()
 
+    def _on_connect(self, *arg, **kwarg) -> (bool, str):
+        return super()._on_connect(*arg, **kwarg)
 
-    def test_procedure(self):
+    def _communicate(self, request: Optional[Union[str, bytes]], *arg, **kwarg) -> Optional[Union[str, bytes, dict]]:
+        message = self._create_message()
+        sock, host_ip, port, *_ = arg
+        bytes_send = sock.sendto(message, (host_ip, port))
+        response = sock.recvfrom(1024)
+        return {
+            'response': response,
+            'bytes_send': bytes_send,
+        }
+
+    def _check_response(self, response: Optional[Union[str, bytes, dict]]) -> dict:
+        return {
+            'bytes_send': response.get('bytes_send', 0),
+            'is_error': False,
+        }
+
+    def _test_procedure(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._socket = sock
-        message = self.create_message()
         if self.host in self.dns_rules:
             host_name = self.dns_rules[self.host]
         else:
@@ -38,12 +56,7 @@ class UdpTest(BaseTCPIPTest):
         host_ip = socket.gethostbyname(host_name)
         sock.settimeout(self.timeout)
         self.result['peer'] = host_ip, self.port
-        bytes_send = sock.sendto(message, (host_ip, self.port))
         try:
-            _ = sock.recvfrom(1024)
+            return self._on_connect(sock, host_ip, self.port)
         finally:
             sock.close()
-        return {
-            'bytes_send': bytes_send,
-        }
-

@@ -16,7 +16,7 @@ class TCPEchoTest(BaseTCPIPTest):
                                    port=self.port,
                                    **additional_fields)
 
-    def test_procedure(self):
+    def _test_procedure(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self._socket = sock
         sock.settimeout(self.timeout)
@@ -28,7 +28,7 @@ class TCPEchoTest(BaseTCPIPTest):
         sock.settimeout(self.timeout)
         self.result['peer'] = host_ip, self.port
         sock.connect((host_ip, self.port))
-        message = self.create_message()
+        message = self._create_message()
         if message:
             sock.send(message)
         response = sock.recv(len(message))

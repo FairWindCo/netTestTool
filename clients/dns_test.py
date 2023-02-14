@@ -35,5 +35,5 @@ class DnsTest(UdpTest):
         packet += struct.pack(">H", 1)  # Query Class
         return packet
 
-    def create_message(self):
+    def _create_message(self):
         return DnsTest._build_packet(self.url)

@@ -9,6 +9,7 @@ class FullHTTPTest(HTTPTest):
 
     def __init__(self, config_dict):
         super().__init__(config_dict)
+        self.url = config_dict.get('target', config_dict.get('url', None))
         self.need_count = config_dict.get('need_count', None)
 
     def get_brief_result(self):
@@ -24,7 +25,7 @@ class FullHTTPTest(HTTPTest):
             }
         return res
 
-    def test_procedure(self):
+    def _test_procedure(self):
         uri = urlparse(self.url)
         host_name, aliases, ips = socket.gethostbyname_ex(uri.hostname)
         test_count = len(ips)
@@ -34,7 +35,7 @@ class FullHTTPTest(HTTPTest):
             self.dns_rules[self.url] = ip
             try:
                 start_test_time = time.time()
-                res = super().test_procedure()
+                res = super()._test_procedure()
                 result['ips'][ip] = res
                 result['ips'][ip]['is_error'] = False
                 result['ips'][ip]['part_time'] = (time.time() - start_test_time)

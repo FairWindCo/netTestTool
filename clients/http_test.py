@@ -88,7 +88,7 @@ class HTTPTest(BaseTCPIPTest):
             from urllib3.exceptions import InsecureRequestWarning
             urllib3.disable_warnings(InsecureRequestWarning)
 
-    def test_procedure(self):
+    def _test_procedure(self):
         url = self.url
         method = self.method
         result = {

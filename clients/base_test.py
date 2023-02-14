@@ -80,7 +80,7 @@ class BaseTest:
     def prepare_for_test(self):
         pass
 
-    def test_procedure(self):
+    def _test_procedure(self):
         return {}
 
     def execute_test_procedure(self):
@@ -88,7 +88,7 @@ class BaseTest:
         start_test_time = time.time()
         try:
             self.result['is_error'] = False
-            self.result.update(self.test_procedure())
+            self.result.update(self._test_procedure())
         except BaseException as e:
             console.print_exception()
             self.result['error'] = self.check_error(e)
@@ -98,19 +98,19 @@ class BaseTest:
         self.result['timing'] = self.test_time
         return self.result
 
-    def check_error(self, err):
+    def check_error(self, err: BaseException):
         if self.direct_out_error:
             console.print_exception()
         self.print_info(BaseTest.LogLevel.LOG_ERROR, err)
         return convert_error(err)
 
-    def get_result(self):
+    def get_result(self) -> dict:
         return self.result
 
     def get_output(self):
         return self.output
 
-    def get_default(self):
+    def get_default(self) -> dict:
         return {}
 
     def print_info(self, message_level: LogLevel, message):
@@ -127,7 +127,7 @@ class BaseTest:
     def print_result(self):
         console.print(self.result)
 
-    def get_brief_result(self):
+    def get_brief_result(self) -> dict:
         return {
             'time': self.result['timing'],
             'is_error': self.result['is_error']

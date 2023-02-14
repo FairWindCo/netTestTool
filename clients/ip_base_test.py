@@ -1,9 +1,16 @@
 import socket
+from typing import Union, Optional
 
 from clients.base_test import BaseTest
 
 
 class BaseTCPIPTest(BaseTest):
+
+
+    def __init__(self, config_dict):
+        super().__init__(config_dict)
+        self.host = config_dict.get('target', config_dict.get('host', None))
+
     @staticmethod
     def socker_error(error):
         if error == 10061 or error == '10061':
@@ -16,11 +23,23 @@ class BaseTCPIPTest(BaseTest):
         else:
             return error
 
-    def create_message(self):
+    def _on_connect(self, *arg, **kwarg) -> (bool, str):
+        mes = self._create_message()
+        response = self._communicate(mes, *arg, **kwarg)
+        result = self._check_response(response)
+        return self._check_response(result)
+
+    def _communicate(self, request: Optional[Union[str, bytes]], *arg, **kwarg) -> Optional[Union[str, bytes, dict]]:
+        return request
+
+    def _create_message(self) -> Optional[Union[str, bytes]]:
         return None
 
-    def check_response(self, message):
-        return True, ""
+    def _check_response(self, response: Optional[Union[str, bytes, dict]]) -> dict:
+        return {
+            'is_error': False,
+            'res_message': response
+        }
 
     def patch_hosts_info(self):
         dns_cache = {}
