@@ -6,8 +6,8 @@ from clients.icmp_test import ICMPTest
 
 class FullICMPTest(ICMPTest):
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
+    def __init__(self, config_dict, data=None):
+        super().__init__(config_dict, data)
         self.need_count = config_dict.get('need_count', None)
 
     def get_brief_result(self):

@@ -5,8 +5,8 @@ from ping.ping import Ping
 
 class ICMPTest(BaseTCPIPTest):
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
+    def __init__(self, config_dict, data=None):
+        super().__init__(config_dict, data)
         self.os_ping = config_dict.get('os_ping', False)
 
     def get_default(self):

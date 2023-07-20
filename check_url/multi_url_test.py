@@ -8,12 +8,13 @@ from clients.http_test import HTTPTest
 from ping.clear_temp_folder import cleanup_mei
 
 
-def one_test(url, server_ip, proxy, timeout):
+def one_test(url, server_ip, proxy, timeout, additional_data=None):
     config_dict = {
         'url': url,
         'timeout': timeout,
         'user': username,
         'password': user_pass,
+        'view_errors': False
     }
 
     if server_ip:
@@ -25,9 +26,10 @@ def one_test(url, server_ip, proxy, timeout):
         config_dict['http_proxy_url'] = proxy
         config_dict['https_proxy_url'] = proxy
         config_dict['proxy_use'] = True
-    #print(config_dict)
-    http = HTTPTest(config_dict)
+    # print(config_dict)
+    http = HTTPTest(config_dict, additional_data)
     return http
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='this is utility to transform system ping to json')
@@ -58,5 +60,4 @@ if __name__ == "__main__":
     print(json.dumps(response))
     cleanup_mei()
 
-
-#.\multi_url_test.exe https://common.sites.local.erc/api/common/ping,https://common.sites.local.erc/api/common/ping?db=1 192.168.38.135
+# .\multi_url_test.exe https://common.sites.local.erc/api/common/ping,https://common.sites.local.erc/api/common/ping?db=1 192.168.38.135

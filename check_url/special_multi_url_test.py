@@ -19,14 +19,9 @@ if __name__ == "__main__":
         'https://sale.local.erc/Tools/Ping/?db=1'
     )
 
-    for index, url in enumerate(urls):
-        test = one_test(url, server_ip, None, None)
-        tests.append(test)
-        thread = Thread(target=test.execute_test_procedure)
-        thread.run()
-    for thread in threads:
-        thread.join()
+    tests = [one_test(url, server_ip, None, None).create_test_thread_and_run() for url in urls]
     for index, test in enumerate(tests):
+        test.wait_for_test_end()
         response[index] = test.get_brief_result()
         indexes.append({'name': index, 'caption': urls[index]})
     print(json.dumps(response))

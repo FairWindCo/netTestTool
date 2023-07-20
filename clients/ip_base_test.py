@@ -1,14 +1,13 @@
-import socket
 from typing import Union, Optional
 
 from clients.base_test import BaseTest
+from clients.patch_dns_util import dns_service_control
 
 
 class BaseTCPIPTest(BaseTest):
 
-
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
+    def __init__(self, config_dict, data=None):
+        super().__init__(config_dict, data)
         self.host = config_dict.get('target', config_dict.get('host', None))
 
     @staticmethod
@@ -42,50 +41,10 @@ class BaseTCPIPTest(BaseTest):
         }
 
     def patch_hosts_info(self):
-        dns_cache = {}
-        dns_rules = self.dns_rules
-        if dns_rules is not None:
-            self.print_info(self.LogLevel.LOG_OPERATION, "PATCH gethostbyname")
-            self.print_info(self.LogLevel.LOG_PARAMS, dns_rules)
-            prv_getaddrinfo = socket.gethostbyname
-
-            def new_gethostbyname(host):
-                print('search host', host)
-                try:
-                    return dns_cache[host]
-                except KeyError:
-                    res = prv_getaddrinfo(host)
-                    dns_cache[host] = res
-                    self.print_info(self.LogLevel.LOG_INFO,
-                                    f"RESOLVE host {host} {res}")
-                    return res
-
-            socket.gethostbyname = new_gethostbyname
+        dns_service_control.activate_rules(self.dns_rules)
 
     def patch_dns(self):
-        dns_cache = {}
-        dns_rules = self.dns_rules
-        if dns_rules is not None:
-            self.print_info(self.LogLevel.LOG_OPERATION, "PATCH DNS OPERATION")
-            self.print_info(self.LogLevel.LOG_PARAMS, dns_rules)
-            prv_getaddrinfo = socket.getaddrinfo
-
-            def new_getaddrinfo(*args):
-                try:
-                    return dns_cache[args]
-                except KeyError:
-                    replaced_ip = dns_rules.get(args[0], None)
-                    if replaced_ip is not None:
-                        # res = [(socket.AddressFamily.AF_INET, args[3], 0, '', (replaced_ip, args[1]))]
-                        res = prv_getaddrinfo(replaced_ip, *args[1:])
-                    else:
-                        res = prv_getaddrinfo(*args)
-                    dns_cache[args] = res
-                    self.print_info(self.LogLevel.LOG_INFO,
-                                    f"RESOLVE {args[0]}:{args[1]} TO {[adr[4] for adr in res]}")
-                    return res
-
-            socket.getaddrinfo = new_getaddrinfo
+        dns_service_control.activate_rules(self.dns_rules)
 
     def check_error(self, err):
         return BaseTCPIPTest.socker_error(super().check_error(err))
@@ -100,3 +59,7 @@ class BaseTCPIPTest(BaseTest):
             "host": '127.0.0.1',
             "dns_rules": {},
         }
+
+    def clear_after_test(self):
+        dns_service_control.deactivate_rules()
+        super().clear_after_test()

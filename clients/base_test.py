@@ -1,5 +1,6 @@
 import time
 from enum import Enum
+from threading import Thread
 
 from rich import pretty
 from rich.console import Console
@@ -44,7 +45,9 @@ class BaseTest:
             result.update(additional_fields)
         return result
 
-    def __init__(self, config_dict):
+    def __init__(self, config_dict, data=None):
+        self._thread_for_test = None
+        self.additional_data = data
         self.trait_unknown_as_null = False
         config = self.get_default()
 
@@ -82,6 +85,9 @@ class BaseTest:
     def prepare_for_test(self):
         pass
 
+    def clear_after_test(self):
+        pass
+
     def _test_procedure(self):
         return {}
 
@@ -90,7 +96,12 @@ class BaseTest:
         start_test_time = time.time()
         try:
             self.result['is_error'] = False
-            self.result.update(self._test_procedure())
+            test_result_data = self._test_procedure()
+            if test_result_data:
+                self.result.update(test_result_data)
+            else:
+                self.result['error'] = "no result returned from test"
+                self.result['is_error'] = True
         except BaseException as e:
             if self.view_errors:
                 console.print_exception()
@@ -99,7 +110,19 @@ class BaseTest:
             self.result['exception'] = e
         self.test_time = (time.time() - start_test_time)
         self.result['timing'] = self.test_time
+        self.clear_after_test()
         return self.result
+
+    def create_test_thread_and_run(self):
+        if self._thread_for_test is None:
+            self._thread_for_test = Thread(target=self.execute_test_procedure)
+            self._thread_for_test.start()
+        return self
+
+    def wait_for_test_end(self):
+        if self._thread_for_test:
+            self._thread_for_test.join()
+        self._thread_for_test = None
 
     def check_error(self, err: BaseException):
         if self.direct_out_error:

@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+
 import requests
 import urllib3
 from requests.auth import HTTPBasicAuth
@@ -26,8 +28,8 @@ def get_ntlm_method(method_name):
 
 class HTTPTest(BaseTCPIPTest):
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
+    def __init__(self, config_dict, data=None):
+        super().__init__(config_dict, data)
         self.session = requests.Session()
 
     def prepare_for_test(self):
@@ -117,7 +119,11 @@ class HTTPTest(BaseTCPIPTest):
         else:
             result['error'] = "Unknown method"
             return result
-        sock_info = response.raw._connection.sock.getpeername()
+        try:
+            sock_info = response.raw._connection.sock.getpeername()
+        except AttributeError:
+            parsed_url = urlparse(url)
+            sock_info = parsed_url.netloc, 0
         result['status_code'] = response.status_code
         result['res_size'] = len(response.content)
         result['peer_ip'] = sock_info[0]
@@ -154,7 +160,7 @@ class HTTPTest(BaseTCPIPTest):
         }
 
     def get_brief_result(self) -> dict:
-        size = self.result.get('res_size',0)
+        size = self.result.get('res_size', 0)
         return {
             'time': self.result['timing'],
             'speed': size / self.result['timing'],

@@ -7,8 +7,8 @@ from clients.http_test import HTTPTest
 
 class FullHTTPTest(HTTPTest):
 
-    def __init__(self, config_dict):
-        super().__init__(config_dict)
+    def __init__(self, config_dict, data=None):
+        super().__init__(config_dict, data)
         self.url = config_dict.get('target', config_dict.get('url', None))
         self.need_count = config_dict.get('need_count', None)
 
