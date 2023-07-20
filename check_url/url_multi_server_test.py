@@ -1,6 +1,7 @@
 import argparse
 import json
 import socket
+from pprint import pprint
 
 from check_url.multi_url_test import one_test
 
@@ -53,7 +54,9 @@ if __name__ == "__main__":
                 response[index] = test.get_brief_result()
             indexes.append({'name': index, 'caption': f'{test.additional_data[0]}:{test.additional_data[1]}'})
             index += 1
-
-    print(json.dumps(response))
+    if arguments.full_result:
+        pprint(response)
+    else:
+        print(json.dumps(response))
 
     # .\multi_url_test.exe https://common.sites.local.erc/api/common/ping,https://common.sites.local.erc/api/common/ping?db=1 192.168.38.135

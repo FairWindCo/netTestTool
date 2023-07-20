@@ -161,17 +161,25 @@ class HTTPTest(BaseTCPIPTest):
 
     def get_brief_result(self) -> dict:
         size = self.result.get('res_size', 0)
+        status_code = self.result.get('status_code', 0)
         return {
             'time': self.result['timing'],
             'speed': size / self.result['timing'],
-            'is_error': self.result['is_error']
+            'is_error': self.result['is_error'] or status_code >= 400,
+            'status_code': status_code,
+            'url_error': 1 if status_code >= 400 else 0,
+            'connect_error': 1 if self.result['is_error'] else 0,
         }
 
     def get_small_result(self) -> dict:
         size = self.result.get('res_size', 0)
+        status_code = self.result.get('status_code', 0)
         return {
             'time': self.result['timing'],
             'speed': size / self.result['timing'],
-            'is_error': self.result['is_error'],
+            'is_error': self.result['is_error'] or status_code >= 400,
+            'status_code': self.result.get('status_code', 0),
             'error': self.result['error'] if self.result['is_error'] else '',
+            'url_error': 1 if status_code >= 400 else 0,
+            'connect_error': 1 if self.result['is_error'] else 0,
         }
