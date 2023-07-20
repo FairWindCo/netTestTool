@@ -22,6 +22,8 @@ def convert_error(err):
 
 
 class BaseTest:
+    view_errors = True
+
     class LogLevel(Enum):
         NO_LOG = 0, ''
         LOG_CRITICAL = 1, '[bold red]'
@@ -90,7 +92,8 @@ class BaseTest:
             self.result['is_error'] = False
             self.result.update(self._test_procedure())
         except BaseException as e:
-            console.print_exception()
+            if self.view_errors:
+                console.print_exception()
             self.result['error'] = self.check_error(e)
             self.result['is_error'] = True
             self.result['exception'] = e

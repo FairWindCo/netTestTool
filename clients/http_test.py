@@ -152,3 +152,11 @@ class HTTPTest(BaseTCPIPTest):
             "json_data": None,
             "post_data": None,
         }
+
+    def get_brief_result(self) -> dict:
+        size = self.result.get('res_size',0)
+        return {
+            'time': self.result['timing'],
+            'speed': size / self.result['timing'],
+            'is_error': self.result['is_error']
+        }

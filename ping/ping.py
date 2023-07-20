@@ -15,13 +15,12 @@
 """
 import dataclasses
 import os
+import select
 import signal
 import socket
 import struct
 import sys
 import time
-
-import select
 
 # ICMP parameters
 ICMP_ECHOREPLY = 0  # Echo reply (per RFC792)
@@ -108,27 +107,49 @@ class Response(object):
     destination = None
     destination_ip = None
 
+    max_jitter = None
+    min_jitter = None
+    avg_jitter = None
+
     def __str__(self) -> str:
         return f"PingResp {self.ret_code} {self.avg_rtt}"
 
-    # def __init__(self):
-    #     self.max_rtt = None
-    #     self.min_rtt = None
-    #     self.avg_rtt = None
-    #     self.packet_lost = None
-    #     self.ret_code = None
-    #     self.output = []
-    #
-    #     self.packet_size = None
-    #     self.timeout = None
-    #     self.destination = None
-    #     self.destination_ip = None
+    def to_dict(self):
+        return {
+            'max_rtt': self.max_rtt,
+            'min_rtt': self.min_rtt,
+            'avg_rtt': self.avg_rtt,
+            'packet_lost': self.packet_lost,
+            'ret_code': self.ret_code,
 
+            'packet_size': self.packet_size,
+            'timeout': self.timeout,
+            'destination': self.destination,
+            'destination_ip': self.destination_ip,
 
+            'max_jitter': self.max_jitter,
+            'min_jitter': self.min_jitter,
+            'avg_jitter': self.avg_jitter,
+
+        }
+
+        # def __init__(self):
+        #     self.max_rtt = None
+        #     self.min_rtt = None
+        #     self.avg_rtt = None
+        #     self.packet_lost = None
+        #     self.ret_code = None
+        #     self.output = []
+        #
+        #     self.packet_size = None
+        #     self.timeout = None
+        #     self.destination = None
+        #     self.destination_ip = None
 
 
 class Ping:
-    def __init__(self, destination, timeout=1000, packet_size=55, own_id=None, quiet_output=True, udp=False, bind=None):
+    def __init__(self, destination, timeout=1000, packet_size=55, own_id=None, quiet_output=True, udp=False,
+                 bind=None):
         self.quiet_output = quiet_output
         if quiet_output:
             self.response = Response()
@@ -163,6 +184,11 @@ class Ping:
         self.min_time = 999999999
         self.max_time = 0.0
         self.total_time = 0.0
+        self.min_jitter = 999999999
+        self.max_jitter = 0.0
+        self.avg_jitter = 0.0
+        self.jitter = 0.0
+        self.last_wait_time = None
 
     # --------------------------------------------------------------------------
 
@@ -234,12 +260,16 @@ class Ping:
             print(msg)
 
         if self.receive_count > 0:
-            msg = "round-trip (ms)  min/avg/max = %0.3f/%0.3f/%0.3f" % (
-                self.min_time, self.total_time / self.receive_count, self.max_time)
+            msg = "round-trip (ms)  min/avg/max = %0.3f/%0.3f/%0.3f \n jitter (ms) min/avg/max = %0.3f/%0.3f/%0.3f" % (
+                self.min_time, self.total_time / self.receive_count, self.max_time,
+                self.min_jitter, self.avg_jitter, self.max_jitter)
             if self.quiet_output:
                 self.response.min_rtt = '%.3f' % self.min_time
                 self.response.avg_rtt = '%.3f' % (self.total_time / self.receive_count)
                 self.response.max_rtt = '%.3f' % self.max_time
+                self.response.max_jitter = '%.3f' % self.max_jitter
+                self.response.min_jitter = '%.3f' % self.min_jitter
+                self.response.avg_jitter = '%.3f' % self.avg_jitter
                 self.response.output.append(msg)
             else:
                 print(msg)
@@ -303,7 +333,7 @@ class Ping:
             # Pause for the remainder of the MAX_SLEEP period (if applicable)
             if (MAX_SLEEP > delay):
                 time.sleep((MAX_SLEEP - delay) / 1000.0)
-
+        self.avg_jitter = self.jitter / self.send_count
         self.print_exit()
         if self.quiet_output:
             return self.response
@@ -343,6 +373,17 @@ class Ping:
         if receive_time:
             self.receive_count += 1
             delay = (receive_time - send_time) * 1000.0
+            if self.last_wait_time is not None:
+                jitter = abs(self.last_wait_time - delay)
+                self.jitter += jitter
+                self.last_wait_time = delay
+                if self.min_jitter > jitter:
+                    self.min_jitter = jitter
+                if self.max_jitter < jitter:
+                    self.max_jitter = jitter
+            else:
+                self.last_wait_time = delay
+
             self.total_time += delay
             if self.min_time > delay:
                 self.min_time = delay
@@ -443,3 +484,8 @@ class Ping:
 def ping(hostname, timeout=1000, count=3, packet_size=55, *args, **kwargs):
     p = Ping(hostname, timeout, packet_size, *args, **kwargs)
     return p.run(count)
+
+
+if __name__ == "__main__":
+    p = Ping('192.168.88.1')
+    print(p.run(5).to_dict())

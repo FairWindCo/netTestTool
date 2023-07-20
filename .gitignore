@@ -4,3 +4,6 @@ output
 venv
 .idea
 report.json
+*.spec
+/os_ping.spec
+/check_url/cred.py
