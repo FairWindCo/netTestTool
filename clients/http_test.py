@@ -166,3 +166,12 @@ class HTTPTest(BaseTCPIPTest):
             'speed': size / self.result['timing'],
             'is_error': self.result['is_error']
         }
+
+    def get_small_result(self) -> dict:
+        size = self.result.get('res_size', 0)
+        return {
+            'time': self.result['timing'],
+            'speed': size / self.result['timing'],
+            'is_error': self.result['is_error'],
+            'error': self.result['error'] if self.result['is_error'] else '',
+        }

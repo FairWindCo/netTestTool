@@ -13,8 +13,8 @@ if __name__ == "__main__":
                            'https://sale.local.erc/Tools/Ping/?db=1'
                        ),
                        'WEBPUBLIC0101.local.erc': (
-                           'https://connect.erc.ua/Tools/Ping/',
-                           'https://connect.erc.ua/Tools/Ping/?db=1',
+                           'http://connect.erc.ua/Tools/Ping/',
+                           'http://connect.erc.ua/Tools/Ping/?db=1',
                        ),
                    }, {
                        'WEBLOCAL0201.local.erc': (
@@ -24,8 +24,8 @@ if __name__ == "__main__":
                            'https://sale.local.erc/Tools/Ping/?db=1'
                        ),
                        'WEBPUBLIC0201.local.erc': (
-                           'https://connect.erc.ua/Tools/Ping/',
-                           'https://connect.erc.ua/Tools/Ping/?db=1',
+                           'http://connect.erc.ua/Tools/Ping/',
+                           'http://connect.erc.ua/Tools/Ping/?db=1',
                        ),
                    })
     indexes = []
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                          (server_name, url)).create_test_thread_and_run())
         for test in tests:
             test.wait_for_test_end()
-            response[index] = test.get_brief_result()
+            response[index] = test.get_small_result()
             indexes.append({'name': index, 'caption': f'{test.additional_data[0]}:{test.additional_data[1]}'})
             index += 1
 
