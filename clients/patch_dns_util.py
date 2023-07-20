@@ -11,6 +11,7 @@ class PatchDNSService:
 
     def activate_rules(self, dns_rules):
         if dns_rules:
+            self.dns_cache.clear()
             self.rule_activate += 1
             self.dns_rules.update(dns_rules)
             self._patch_dns()
@@ -28,7 +29,9 @@ class PatchDNSService:
 
             def new_getaddrinfo(*args):
                 try:
-                    return dns_cache[args]
+                    res = dns_cache[args]
+                    #print(args[0], res, args)
+                    return res
                 except KeyError:
                     replaced_ip = dns_rules.get(args[0], None)
                     if replaced_ip is not None:
@@ -37,6 +40,7 @@ class PatchDNSService:
                     else:
                         res = prv_getaddrinfo(*args)
                     dns_cache[args] = res
+                    #print(args[0], res)
                     return res
 
             socket.getaddrinfo = new_getaddrinfo

@@ -54,8 +54,11 @@ if __name__ == "__main__":
                 response[index] = test.get_brief_result()
             indexes.append({'name': index, 'caption': f'{test.additional_data[0]}:{test.additional_data[1]}'})
             index += 1
-    if arguments.full_result:
-        pprint(response)
+    if arguments.full_result or arguments.small_result:
+        reformat_result = {}
+        for info_dict in indexes:
+            print(info_dict['caption'])
+            pprint(response[info_dict['name']])
     else:
         print(json.dumps(response))
 

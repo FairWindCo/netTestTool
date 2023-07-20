@@ -1,3 +1,4 @@
+from pprint import pprint
 from urllib.parse import urlparse
 
 import requests
@@ -31,6 +32,7 @@ class HTTPTest(BaseTCPIPTest):
     def __init__(self, config_dict, data=None):
         super().__init__(config_dict, data)
         self.session = requests.Session()
+        self.test_response = None
 
     def prepare_for_test(self):
         super().prepare_for_test()
@@ -119,14 +121,15 @@ class HTTPTest(BaseTCPIPTest):
         else:
             result['error'] = "Unknown method"
             return result
-        try:
+        if response.raw._connection and response.raw._connection.sock:
             sock_info = response.raw._connection.sock.getpeername()
-        except AttributeError:
+        else:
             parsed_url = urlparse(url)
             sock_info = parsed_url.netloc, 0
+        result['elapsed'] = response.elapsed.total_seconds()
         result['status_code'] = response.status_code
         result['res_size'] = len(response.content)
-        result['text'] = response.text
+        self.test_response = response.text
         result['peer_ip'] = sock_info[0]
         result['peer_port'] = sock_info[1]
         result['response_header'] = response.headers
