@@ -126,10 +126,10 @@ class HTTPTest(BaseTCPIPTest):
             sock_info = parsed_url.netloc, 0
         result['status_code'] = response.status_code
         result['res_size'] = len(response.content)
+        result['text'] = response.text
         result['peer_ip'] = sock_info[0]
         result['peer_port'] = sock_info[1]
         result['response_header'] = response.headers
-
         return result
 
     def get_default(self):

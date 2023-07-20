@@ -1,10 +1,14 @@
+import argparse
 import json
 import socket
 
 from check_url.multi_url_test import one_test
 
 if __name__ == "__main__":
-
+    parser = argparse.ArgumentParser(description='this is utility to transform system ping to json')
+    parser.add_argument('-s', '--small_result', action='store_true')
+    parser.add_argument('-f', '--full_result', action='store_true')
+    arguments = parser.parse_args()
     test_blocks = ({
                        'WEBLOCAL0101.local.erc': (
                            'https://common.sites.local.erc/api/common/ping',
@@ -41,7 +45,12 @@ if __name__ == "__main__":
                          (server_name, url)).create_test_thread_and_run())
         for test in tests:
             test.wait_for_test_end()
-            response[index] = test.get_small_result()
+            if arguments.small_result:
+                response[index] = test.get_small_result()
+            elif arguments.full_result:
+                response[index] = test.get_result()
+            else:
+                response[index] = test.get_brief_result()
             indexes.append({'name': index, 'caption': f'{test.additional_data[0]}:{test.additional_data[1]}'})
             index += 1
 
