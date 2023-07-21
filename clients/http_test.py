@@ -1,4 +1,4 @@
-from pprint import pprint
+import os
 from urllib.parse import urlparse
 
 import requests
@@ -36,6 +36,9 @@ class HTTPTest(BaseTCPIPTest):
 
     def prepare_for_test(self):
         super().prepare_for_test()
+        if not self.trust_env:
+            self.session.trust_env = False
+
         if self.proxy_use and self.proxy_ip:
 
             self.print_info(self.LogLevel.LOG_OPERATION, "TRY USE PROXY")
@@ -52,8 +55,6 @@ class HTTPTest(BaseTCPIPTest):
             }
 
             self.print_info(BaseTest.LogLevel.LOG_PARAMS, proxies)
-            if not self.trust_env:
-                self.session.trust_env = False
 
             if self.proxy_user and self.proxy_use_auth:
                 ntlm_compatibility = get_ntlm_method(self.proxy_auth_method)
@@ -76,6 +77,8 @@ class HTTPTest(BaseTCPIPTest):
                         )
                     )
             self.session.proxies = proxies
+        else:
+            os.environ['no_proxy'] = '*'
         if self.login_use and self.username:
 
             self.print_info(BaseTest.LogLevel.LOG_OPERATION, "TRY USE LOGIN")
@@ -155,7 +158,7 @@ class HTTPTest(BaseTCPIPTest):
             "auth_method": "ntlm2",
             "http_proxy_url": "",
             "https_proxy_url": "",
-            #disable trust env variables that disable system proxy
+            # disable trust env variables that disable system proxy
             "trust_env": False,
             "timeout": 5,
             "dns_rules": {
