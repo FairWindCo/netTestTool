@@ -52,6 +52,8 @@ class HTTPTest(BaseTCPIPTest):
             }
 
             self.print_info(BaseTest.LogLevel.LOG_PARAMS, proxies)
+            if not self.trust_env:
+                self.session.trust_env = False
 
             if self.proxy_user and self.proxy_use_auth:
                 ntlm_compatibility = get_ntlm_method(self.proxy_auth_method)
@@ -153,6 +155,8 @@ class HTTPTest(BaseTCPIPTest):
             "auth_method": "ntlm2",
             "http_proxy_url": "",
             "https_proxy_url": "",
+            #disable trust env variables that disable system proxy
+            "trust_env": False,
             "timeout": 5,
             "dns_rules": {
                 "1connect.erc.ua": "128.0.168.73",
