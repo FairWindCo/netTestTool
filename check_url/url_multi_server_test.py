@@ -25,8 +25,8 @@ if __name__ == "__main__":
                            'https://sale.local.erc/Tools/Ping/?db=1'
                        ), "http_params": {"login_use": True}},
                        'WEBPUBLIC0101.local.erc': {"urls": (
-                           'http://connect.erc.ua/Tools/Ping/',
-                           'http://connect.erc.ua/Tools/Ping/?db=1',
+                           'https://connect.erc.ua/Tools/Ping/',
+                           'https://connect.erc.ua/Tools/Ping/?db=1',
                        )},
                    }, {
                        'WEBLOCAL0201.local.erc': {"urls": (
@@ -36,8 +36,8 @@ if __name__ == "__main__":
                            'https://sale.local.erc/Tools/Ping/?db=1'
                        ), "http_params": {"login_use": True}},
                        'WEBPUBLIC0201.local.erc': {"urls": (
-                           'http://connect.erc.ua/Tools/Ping/',
-                           'http://connect.erc.ua/Tools/Ping/?db=1',
+                           'https://connect.erc.ua/Tools/Ping/',
+                           'https://connect.erc.ua/Tools/Ping/?db=1',
                        )},
                    })
     indexes = []
