@@ -11,27 +11,34 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--full_result', action='store_true')
     arguments = parser.parse_args()
     test_blocks = ({
-                       'WEBLOCAL0101.local.erc': (
+                       # 'WEB02.local.erc': {"urls":(
+                       #     'https://common.sites.local.erc/api/common/ping',
+                       #     'https://common.sites.local.erc/api/common/ping?db=1',
+                       #     'https://sale.local.erc/Tools/Ping/',
+                       #     'https://sale.local.erc/Tools/Ping/?db=1'
+                       # )},
+
+                       'WEBLOCAL0101.local.erc': {"urls": (
                            'https://common.sites.local.erc/api/common/ping',
                            'https://common.sites.local.erc/api/common/ping?db=1',
                            'https://sale.local.erc/Tools/Ping/',
                            'https://sale.local.erc/Tools/Ping/?db=1'
-                       ),
-                       'WEBPUBLIC0101.local.erc': (
+                       ), "http_params": {"login_use": True}},
+                       'WEBPUBLIC0101.local.erc': {"urls": (
                            'http://connect.erc.ua/Tools/Ping/',
                            'http://connect.erc.ua/Tools/Ping/?db=1',
-                       ),
+                       )},
                    }, {
-                       'WEBLOCAL0201.local.erc': (
+                       'WEBLOCAL0201.local.erc': {"urls": (
                            'https://common.sites.local.erc/api/common/ping',
                            'https://common.sites.local.erc/api/common/ping?db=1',
                            'https://sale.local.erc/Tools/Ping/',
                            'https://sale.local.erc/Tools/Ping/?db=1'
-                       ),
-                       'WEBPUBLIC0201.local.erc': (
+                       ), "http_params": {"login_use": True}},
+                       'WEBPUBLIC0201.local.erc': {"urls": (
                            'http://connect.erc.ua/Tools/Ping/',
                            'http://connect.erc.ua/Tools/Ping/?db=1',
-                       ),
+                       )},
                    })
     indexes = []
     response = {'indexes': indexes}
@@ -40,10 +47,13 @@ if __name__ == "__main__":
     index = 0
     for block_test_index, test_block in enumerate(test_blocks):
         tests = []
-        for server_name, urls in test_block.items():
-            for url in urls:
+        for server_name, test_desciption in test_block.items():
+            for url in test_desciption['urls']:
                 tests.append(one_test(url, socket.gethostbyname(server_name), None, None,
-                         (server_name, url)).create_test_thread_and_run())
+                                      (server_name, url),
+                                      test_desciption.get('http_params', None)
+                                      ).create_test_thread_and_run(),
+                             )
         for test in tests:
             test.wait_for_test_end()
             if arguments.small_result:

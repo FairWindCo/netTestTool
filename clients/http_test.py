@@ -96,6 +96,8 @@ class HTTPTest(BaseTCPIPTest):
         if not self.verify:
             from urllib3.exceptions import InsecureRequestWarning
             urllib3.disable_warnings(InsecureRequestWarning)
+            #self.
+
 
     def _test_procedure(self):
         url = self.url
@@ -145,7 +147,7 @@ class HTTPTest(BaseTCPIPTest):
             "url": "https://connect.erc.ua/",
             "verify": False,
             "method": "get",
-            "user": "erc\\\\cwrk_ShipmentOrder",
+            "username": "erc\\\\cwrk_ShipmentOrder",
             "password": "",
             "use_proxy_auth": False,
             "proxy_user": "",

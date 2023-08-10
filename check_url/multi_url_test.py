@@ -8,14 +8,18 @@ from clients.http_test import HTTPTest
 from ping.clear_temp_folder import cleanup_mei
 
 
-def one_test(url, server_ip, proxy, timeout, additional_data=None):
+def one_test(url, server_ip, proxy, timeout, additional_data=None,
+             http_params=None):
     config_dict = {
         'url': url,
         'timeout': timeout,
-        'user': username,
+        'username': username,
         'password': user_pass,
+        # 'login_use': True if test_username else False,
         'view_errors': False
     }
+    if http_params:
+        config_dict.update(http_params)
 
     if server_ip:
         parsed_url = urlparse(url)
@@ -26,7 +30,6 @@ def one_test(url, server_ip, proxy, timeout, additional_data=None):
         config_dict['http_proxy_url'] = proxy
         config_dict['https_proxy_url'] = proxy
         config_dict['proxy_use'] = True
-    # print(config_dict)
     http = HTTPTest(config_dict, additional_data)
     return http
 
