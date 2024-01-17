@@ -1,0 +1,55 @@
+{
+  "tests": {
+    "Zabbix_Passive_Zabbix0201": {
+      "type": "tcp",
+      "host": "zabbix0201.bs.local.erc",
+      "port": 10051
+    },
+    "Zabbix_Passive_Zabbix0101": {
+      "type": "tcp",
+      "host": "zabbix0101.bs.local.erc",
+      "port": 10051
+    },
+    "SNMP_162_Zabbix0201": {
+      "type": "udp",
+      "host": "zabbix0201.bs.local.erc",
+      "port": 162
+    },
+    "SNMP_161_Zabbix0201": {
+      "type": "udp",
+      "host": "zabbix0201.bs.local.erc",
+      "port": 161
+    },
+    "SNMP_162_Zabbix0101": {
+      "type": "udp",
+      "host": "zabbix0101.bs.local.erc",
+      "port": 162
+    },
+    "SNMP_161_Zabbix0101": {
+      "type": "udp",
+      "host": "zabbix0101.bs.local.erc",
+      "port": 161
+    },
+    "TCP_5985_Zabbix0201": {
+      "type": "tcp",
+      "host": "zabbix0201.bs.local.erc",
+      "port": 5985
+    },
+    "TCP_5985_Zabbix0101": {
+      "type": "tcp",
+      "host": "zabbix0101.bs.local.erc",
+      "port": 5985
+    },
+    "TCP_5986_Zabbix0201": {
+      "type": "tcp",
+      "host": "zabbix0201.bs.local.erc",
+      "port": 5986
+    },
+    "TCP_5986_Zabbix0101": {
+      "type": "tcp",
+      "host": "zabbix0101.bs.local.erc",
+      "port": 5986
+    }
+  },
+  "report_file": "net_test_report.json"
+}

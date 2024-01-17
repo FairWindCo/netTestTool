@@ -1,0 +1,44 @@
+{
+  "template": {
+    "base_http": {
+      "type": "http"
+    },
+    "base_full_http": {
+      "type": "full_http",
+      "verify": false
+    }
+  },
+  "tests": {
+    "connect.erc.ua": {
+      "template": "base_full_http",
+      "url": "https://connect.erc.ua",
+      "need_count": 2
+    },
+    "Ping_Self": {
+      "type": "ping",
+      "host": "127.0.0.1"
+    },
+    "Test_8080_Self_TCP": {
+      "type": "tcp",
+      "host": "127.0.0.1",
+      "port": 8080
+    },
+    "Test_8080_Self_UDP": {
+      "type": "udp",
+      "host": "127.0.0.1",
+      "port": 8080
+    }
+  },
+  "servers": {
+    "test_1": {
+      "type": "tcp",
+      "port": 8080
+    },
+    "test_2": {
+      "type": "udp",
+      "port": 8080
+    }
+  },
+  "stop_servers": false,
+  "report_file": "net_test_report.json"
+}

@@ -1,0 +1,21 @@
+{
+  "servers": {
+    "UDP_161": {
+      "type": "udp",
+      "port": 161
+    },
+    "UDP_162": {
+      "type": "udp",
+      "port": 162
+    },
+    "TCP_5985": {
+      "type": "tcp",
+      "port": 5985
+    },
+    "TCP_5986": {
+      "type": "tcp",
+      "port": 5986
+    }
+  },
+  "stop_servers": false
+}

@@ -1,3 +1,6 @@
+#pyinstaller --noconfirm --onefile --console  "C:\Users\User\PycharmProjects\netTest\complex.py"
+
+import argparse
 import concurrent.futures
 import datetime
 import json
@@ -40,6 +43,7 @@ class ComplexTest:
         self.concurrent = config_dict.get('concurrent', True)
         self.max_workers = config_dict.get('max_workers', None)
         self.max_execution_time = config_dict.get('max_execution_time', None)
+        self.control_mode = config_dict.get('control_mode', True)
 
     @staticmethod
     def get_test_by_name(test_name: str, config_dict: dict):
@@ -107,8 +111,12 @@ class ComplexTest:
 
     def stop_all_servers(self):
         if self.stop_server_after_test:
-            for server in self.active_servers:
-                server.stop()
+            print("Stop server after test")
+            self.shutdown_servers()
+
+    def shutdown_servers(self):
+        for server in self.active_servers:
+            server.stop()
 
     def run_test(self, test_desc, test_name=None):
         if test_name is None:
@@ -191,6 +199,7 @@ class ComplexTest:
         _config = ComplexTest.load_config(filename)
         complex_tests = ComplexTest(_config)
         if with_servers:
+            print("Start servers")
             complex_tests.run_servers()
         return complex_tests, _config
 
@@ -258,7 +267,11 @@ class ComplexTest:
                 if current_error_count > 0:
                     pass
                 current_error_count = 0
-            time.sleep(interval)
+            if complex_test.control_mode:
+                time.sleep(interval)
+            else:
+                break
+        complex_test.shutdown_servers()
 
 
 def safe_file(res, file_name='report.json'):
@@ -267,7 +280,13 @@ def safe_file(res, file_name='report.json'):
 
 
 if __name__ == "__main__":
-    ComplexTest.control_network_process(debug=1)
+    ArgParser = argparse.ArgumentParser(description='Network Complex Tests')
+    ArgParser.add_argument('-d', dest='debug', action='store', help='debug level', type=int, default=0)
+    ArgParser.add_argument('-s', dest='with_servers', action='store_true', help='Enable listening server for test')
+    ArgParser.add_argument('-c', dest='config_file', action='store', help='config file name', default='net_test.json')
+    arguments = ArgParser.parse_args()
+    ComplexTest.control_network_process(config_file=arguments.config_file,
+                                        debug=arguments.debug, with_servers=arguments.with_servers)
 # config = ComplexTest.load_config("config.json")
 # complex = ComplexTest(config)
 #

@@ -51,7 +51,7 @@ class BaseTCPIPTest(BaseTest):
 
     def prepare_for_test(self):
         super().prepare_for_test()
-        if self.dns_rules:
+        if hasattr(self, 'dns_rules') and self.dns_rules:
             self.patch_dns()
 
     def get_default(self):

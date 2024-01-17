@@ -49,7 +49,7 @@ class UdpTest(BaseTCPIPTest):
     def _test_procedure(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self._socket = sock
-        if self.host in self.dns_rules:
+        if hasattr(self, 'dns_rules') and self.host in self.dns_rules:
             host_name = self.dns_rules[self.host]
         else:
             host_name = self.host
@@ -60,3 +60,10 @@ class UdpTest(BaseTCPIPTest):
             return self._on_connect(sock, host_ip, self.port)
         finally:
             sock.close()
+
+if __name__ == '__main__':
+    udp = UdpTest({
+        'host': '127.0.0.1',
+        'port': 8080
+    })
+    print(udp.execute_test_procedure())

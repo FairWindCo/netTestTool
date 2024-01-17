@@ -59,6 +59,7 @@ if __name__ == "__main__":
             if arguments.small_result:
                 response[index] = test.get_small_result()
             elif arguments.full_result:
+                print(test.test_response)
                 response[index] = test.get_result()
             else:
                 response[index] = test.get_brief_result()

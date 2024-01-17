@@ -1,4 +1,5 @@
 import socket
+import time
 from threading import Thread
 
 from servers.socket_server import SocketServerInt
@@ -45,8 +46,10 @@ class ThreadedTcpSocketServer(socket.socket, SocketServerInt):
                 pass
 
     def stop(self):
-        self.working = False
-        self.close()
+        if self.working:
+            self.working = False
+            self.close()
+            print("Server stopped")
 
     def recieve(self, client):
         while self.working:
