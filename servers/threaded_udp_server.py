@@ -1,5 +1,4 @@
 import socket
-import sys
 import time
 from threading import Thread
 
@@ -10,7 +9,7 @@ class ThreadedUdpSocketServer(socket.socket, SocketServerInt):
     clients = []
 
     def __init__(self, port=8080, bidning='0.0.0.0', max_buffer=1024):
-        #print("create server socket")
+        # print("create server socket")
         socket.socket.__init__(self, socket.AF_INET, socket.SOCK_DGRAM)
         # To silence- address occupied!!
         self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -18,9 +17,13 @@ class ThreadedUdpSocketServer(socket.socket, SocketServerInt):
             bidning = '0.0.0.0'
         if max_buffer is None:
             max_buffer = 1024
-        self.bind((bidning, port))
-        self.my_max_buffer = max_buffer
-        self.working = True
+        try:
+            self.bind((bidning, port))
+            self.my_max_buffer = max_buffer
+            self.working = True
+        except OSError as error:
+            print(bidning, port, error)
+            self.working = False
 
     def stop(self):
         if self.working:
@@ -29,15 +32,15 @@ class ThreadedUdpSocketServer(socket.socket, SocketServerInt):
             print("Server stopped")
 
     def run(self):
-        #print("UDP Server started")
+        # print("UDP Server started")
         try:
             self.accept_clients()
         except Exception as ex:
             print("UDP: Server:", ex)
         finally:
-            #print("UDP Server closed")
+            # print("UDP Server closed")
             self.close()
-        #print("UDP server shutdown")
+        # print("UDP server shutdown")
 
     def accept_clients(self):
         while self.working:

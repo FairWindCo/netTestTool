@@ -1,5 +1,4 @@
 import socket
-import time
 from threading import Thread
 
 from servers.socket_server import SocketServerInt
@@ -16,11 +15,14 @@ class ThreadedTcpSocketServer(socket.socket, SocketServerInt):
             bidning = '0.0.0.0'
         if buffer_size is None:
             buffer_size = 1024
-
-        self.bind((bidning, port))
-        self.listen(5)
-        self.working = True
-        self.buffer_size = buffer_size
+        try:
+            self.bind((bidning, port))
+            self.listen(5)
+            self.working = True
+            self.buffer_size = buffer_size
+        except OSError as error:
+            print(bidning, port, error)
+            self.working = False
 
     def run(self):
         try:
